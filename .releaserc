@@ -1,0 +1,79 @@
+{
+  "branches": [
+    {"name": "master"},
+    {"name": "rc", "channel": "rc", "prerelease": "rc"},
+    {"name": "beta", "channel": "beta", "prerelease": "beta"},
+    {"name": "alpha", "channel": "alpha", "prerelease": "alpha"}
+  ],
+  "plugins": [
+    ["@semantic-release/commit-analyzer", {
+      "preset": "angular",
+      "releaseRules": [
+        {"breaking": "true", "release": "major"},
+        {"type": "refactor", "release": "patch"},
+        {"type": "perf", "release": "patch"}
+      ]
+    }],
+    ["@semantic-release/changelog", {
+      "changelogFile": "CHANGELOG.md",
+      "changelogTitle": "# Changelog"
+    }],
+    ["@semantic-release/release-notes-generator", {
+      "preset": "conventionalcommits",
+      "presetConfig": {
+        "types": [
+          {"type": "feat", "section": "Features", "hidden": false},
+          {"type": "fix", "section": "Fixes", "hidden": false},
+          {"type": "docs", "section": "Documentations", "hidden": false},
+          {"type": "refactor", "section": "Code Refactoring", "hidden": false},
+          {"type": "style", "section": "Styles", "hidden": false},
+          {"type": "chore", "section": "Maintenance", "hidden": false},
+          {"type": "perf", "section": "Performance Improvements", "hidden": false},
+          {"type": "ci", "section": "Continuous Integrations", "hidden": false}
+        ]
+      }
+    }],
+    "@semantic-release/github",
+    ["@semantic-release/exec", {
+      "generateNotesCmd": "echo ${nextRelease.version} > VERSION"
+    }],
+    [
+      "@google/semantic-release-replace-plugin",
+      {
+        "replacements": [
+          {
+            "files": ["package.xml"],
+            "from": "<version>.*</version>",
+            "to": "<version>${nextRelease.version}</version>",
+            "results": [
+              {
+                "file": "package.xml",
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
+          },
+          {
+            "files": ["setup.py"],
+            "from": "version='.*',",
+            "to": "version='${nextRelease.version}',",
+            "results": [
+              {
+                "file": "setup.py",
+                "hasChanged": true,
+                "numMatches": 1,
+                "numReplacements": 1
+              }
+            ],
+            "countMatches": true
+          }
+        ]
+      }
+    ],
+    ["@semantic-release/git", {
+      "assets": ["CHANGELOG.md", "VERSION", "package.xml", "setup.py"]
+    }]
+  ]
+}
